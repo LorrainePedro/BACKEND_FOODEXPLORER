@@ -5,7 +5,7 @@ class DishesController {
   async create(request, response) {
     const { title, description, category, price, ingredients } = request.body;
 
-    const checkDishExists = await knex("plates").where("title", title).first();
+    const checkDishExists = await knex("dishes").where("title", title).first();
 
     if (checkDishExists) {
       throw new AppError("Esse prato já existe.");
