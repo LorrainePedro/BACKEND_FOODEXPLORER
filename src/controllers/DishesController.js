@@ -5,7 +5,7 @@ class DishesController {
   async create(request, response) {
     const { title, description, category, price, ingredients } = request.body;
 
-    const checkDishExists = await knex("plates").where("title", title).first();
+    const checkDishExists = await knex("dishes").where("title", title).first();
 
     if (checkDishExists) {
       throw new AppError("Esse prato já existe.");
@@ -22,16 +22,14 @@ class DishesController {
       price,
     });
 
-    if (ingredients) {
-      const ingredientsInsert = ingredients.map((ingredient) => {
-        return {
-          name: ingredient,
-          dishes_id,
-        };
-      });
+    const ingredientsInsert = ingredients.map((ingredient) => {
+      return {
+        name: ingredient,
+        dishes_id,
+      };
+    });
 
-      await knex("ingredients").insert(ingredientsInsert);
-    }
+    await knex("ingredients").insert(ingredientsInsert);
 
     return response.status(201).json(dishes_id);
   }
@@ -77,7 +75,7 @@ class DishesController {
 
     const dish = await knex("dishes").where({ id }).first();
     const ingredients = await knex("ingredients")
-      .where({ dish_id: id })
+      .where({ dishes_id: id })
       .orderBy("name");
 
     return response.json({
