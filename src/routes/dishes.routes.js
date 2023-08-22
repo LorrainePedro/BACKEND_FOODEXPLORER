@@ -20,7 +20,6 @@ dishesRoutes.post("/", ensureAuthenticatedAdmin, dishesController.create);
 
 dishesRoutes.patch(
   "/image/:id",
-  ensureAuthenticatedAdmin,
   upload.single("image"),
   imageController.update
 );

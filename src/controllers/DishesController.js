@@ -59,10 +59,12 @@ class DishesController {
   async index(request, response) {
     const { title, ingredients } = request.query;
     let dishes;
+
     if (ingredients) {
       const filterIngredients = ingredients
         .split(",")
         .map((ingredient) => ingredient.trim());
+
       dishes = await knex("ingredients")
         .select([
           "dishes.id",
@@ -72,25 +74,28 @@ class DishesController {
           "dishes.price",
           "dishes.image",
         ])
-        .whereLike("dishes.title"`%${title}%`)
-        .whereIn("ingredients.name", filterIngredients)
-        .innerJoin("dishes", "dishes.id", "ingredients.dish_id")
-        .orderBy("ingredients.name");
+        .whereLike("dishes.title", `%${title}%`)
+        .whereIn("name", filterIngredients)
+        .innerJoin("dishes", "dishes.id", "ingredients.dishes_id")
+        .orderBy("dishes.title");
     } else {
       dishes = await knex("dishes")
-        .whereLike("title", `%${title}`)
+        .whereLike("title", `%${title}%`)
         .orderBy("title");
     }
+
     const dishesIngredients = await knex("ingredients");
     const dishesWithIngredients = dishes.map((dish) => {
       const dishIngredients = dishesIngredients.filter(
         (ingredient) => ingredient.dish_id === dish.id
       );
+
       return {
         ...dish,
         ingredients: dishIngredients,
       };
     });
+
     return response.json(dishesWithIngredients);
   }
 
@@ -101,14 +106,15 @@ class DishesController {
 
     const dish = await knex("dishes").where("id", id).first();
 
-    dish.title = title ?? dish.title;
     dish.description = description ?? dish.description;
     dish.category = category ?? dish.category;
     dish.price = price ?? dish.price;
 
     if (imageFile) {
       const imageFilename = imageFile.filename;
+
       const newFilename = await diskStorage.saveFile(imageFilename);
+
       dish.image = newFilename;
     }
 
@@ -119,7 +125,22 @@ class DishesController {
       price: dish.price,
       image: dish.image,
     });
-    return response.json({ dish });
+
+    return response.json(dish);
+  }
+
+  async show(request, response) {
+    const { id } = request.params;
+
+    const dish = await knex("dishes").where({ id }).first();
+    const ingredients = await knex("ingredients")
+      .where({ dishes_id: id })
+      .orderBy("name");
+
+    return response.json({
+      ...dish,
+      ingredients,
+    });
   }
 }
 
