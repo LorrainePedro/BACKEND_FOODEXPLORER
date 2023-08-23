@@ -106,6 +106,7 @@ class DishesController {
 
     const dish = await knex("dishes").where("id", id).first();
 
+    dish.title = title ?? dish.title;
     dish.description = description ?? dish.description;
     dish.category = category ?? dish.category;
     dish.price = price ?? dish.price;

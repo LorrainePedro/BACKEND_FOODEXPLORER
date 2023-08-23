@@ -16,7 +16,12 @@ const imageController = new ImageController();
 
 dishesRoutes.use(ensureAuthenticated);
 
-dishesRoutes.post("/", ensureAuthenticatedAdmin, dishesController.create);
+dishesRoutes.post(
+  "/",
+  ensureAuthenticatedAdmin,
+  upload.single("image"),
+  dishesController.create
+);
 
 dishesRoutes.patch(
   "/image/:id",
