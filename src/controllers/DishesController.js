@@ -1,9 +1,13 @@
 const knex = require("../database/knex");
 const AppError = require("../utils/AppError");
+const DiskStorage = require("../providers/DiskStorage");
 
 class DishesController {
   async create(request, response) {
     const { title, description, category, price, ingredients } = request.body;
+
+    console.log(request.file);
+    const imageFilename = request.file.filename;
 
     const checkDishExists = await knex("dishes").where("title", title).first();
 
@@ -11,7 +15,7 @@ class DishesController {
       throw new AppError("Esse prato já existe.");
     }
 
-    if (!title || !description || !category || !price) {
+    if (!title || !description || !category || !price || !imageFilename) {
       throw new AppError("Por favor, verifique e preencha todos os campos.");
     }
 
@@ -22,7 +26,21 @@ class DishesController {
       price,
     });
 
-    const ingredientsInsert = ingredients.map((ingredient) => {
+    const diskStorage = new DiskStorage();
+    const filename = await diskStorage.saveFile(imageFilename);
+    const dish = await knex("dishes").where({ id: dishes_id }).first();
+    dish.image = filename;
+    await knex("dishes").update(dish).where({ id: dishes_id });
+
+    let myIngredients = [];
+
+    if (!Array.isArray(ingredients)) {
+      myIngredients.push(ingredients);
+    } else {
+      myIngredients = ingredients;
+    }
+    console.log(myIngredients);
+    const ingredientsInsert = myIngredients.map((ingredient) => {
       return {
         name: ingredient,
         dishes_id,
