@@ -6,50 +6,60 @@ class DishesController {
   async create(request, response) {
     const { title, description, category, price, ingredients } = request.body;
 
-    console.log(request.file);
-    const imageFilename = request.file.filename;
+    const dishFilename = request.file.filename;
 
-    const checkDishExists = await knex("dishes").where("title", title).first();
+    const diskStorage = new DiskStorage();
 
-    if (checkDishExists) {
-      throw new AppError("Esse prato já existe.");
-    }
-
-    if (!title || !description || !category || !price || !imageFilename) {
-      throw new AppError("Por favor, verifique e preencha todos os campos.");
-    }
+    const filename = await diskStorage.saveFile(dishFilename);
 
     const [dishes_id] = await knex("dishes").insert({
       title,
       description,
       category,
       price,
+      image: filename,
     });
 
-    const diskStorage = new DiskStorage();
-    const filename = await diskStorage.saveFile(imageFilename);
-    const dish = await knex("dishes").where({ id: dishes_id }).first();
-    dish.image = filename;
-    await knex("dishes").update(dish).where({ id: dishes_id });
-
-    let myIngredients = [];
-
-    if (!Array.isArray(ingredients)) {
-      myIngredients.push(ingredients);
-    } else {
-      myIngredients = ingredients;
-    }
-    console.log(myIngredients);
-    const ingredientsInsert = myIngredients.map((ingredient) => {
+    const ingredientsInsert = ingredients.map((ingredient) => {
       return {
-        name: ingredient,
         dishes_id,
+        name: ingredient,
       };
     });
 
     await knex("ingredients").insert(ingredientsInsert);
 
-    return response.status(201).json(dishes_id);
+    return response.status(201).json();
+  }
+
+  async update(request, response) {
+    const { id } = request.params;
+    const { title, description, category, price } = request.body;
+    const imageFile = request.file;
+    const dish = await knex("dishes").where("id", id).first();
+
+    dish.title = title ?? dish.title;
+    dish.description = description ?? dish.description;
+    dish.category = category ?? dish.category;
+    dish.price = price ?? dish.price;
+
+    if (imageFile) {
+      const imageFilename = imageFile.filename;
+      const diskStorage = new DiskStorage();
+      const newFilename = await diskStorage.saveFile(imageFilename);
+
+      dish.image = newFilename;
+    }
+
+    await knex("dishes").where("id", id).update({
+      title: dish.title,
+      description: dish.description,
+      category: dish.category,
+      price: dish.price,
+      image: dish.image,
+    });
+
+    return response.json(dish);
   }
 
   async show(request, response) {
@@ -115,51 +125,6 @@ class DishesController {
     });
 
     return response.json(dishesWithIngredients);
-  }
-
-  async update(request, response) {
-    const { id } = request.params;
-    const { title, description, category, price } = request.body;
-    const imageFile = request.file;
-
-    const dish = await knex("dishes").where("id", id).first();
-
-    dish.title = title ?? dish.title;
-    dish.description = description ?? dish.description;
-    dish.category = category ?? dish.category;
-    dish.price = price ?? dish.price;
-
-    if (imageFile) {
-      const imageFilename = imageFile.filename;
-
-      const newFilename = await diskStorage.saveFile(imageFilename);
-
-      dish.image = newFilename;
-    }
-
-    await knex("dishes").where("id", id).update({
-      title: dish.title,
-      description: dish.description,
-      category: dish.category,
-      price: dish.price,
-      image: dish.image,
-    });
-
-    return response.json(dish);
-  }
-
-  async show(request, response) {
-    const { id } = request.params;
-
-    const dish = await knex("dishes").where({ id }).first();
-    const ingredients = await knex("ingredients")
-      .where({ dishes_id: id })
-      .orderBy("name");
-
-    return response.json({
-      ...dish,
-      ingredients,
-    });
   }
 }
 
