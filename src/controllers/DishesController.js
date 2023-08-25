@@ -6,24 +6,38 @@ class DishesController {
   async create(request, response) {
     const { title, description, category, price, ingredients } = request.body;
 
-    const dishFilename = request.file.filename;
+    let image = null;
+    let filename = null;
 
     const diskStorage = new DiskStorage();
 
-    const filename = await diskStorage.saveFile(dishFilename);
+    const checkDish = await knex("dishes").where({ title }).first();
+
+    if (checkDish) {
+      throw new AppError("Não é possível criar pratos repetidos.");
+    }
+
+    if (request.file) {
+      image = request.file.filename;
+      filename = await diskStorage.saveFile(image);
+      console.log(image);
+    }
+    //const dishFilename = request.file.filename;
+
+    //const filename = await diskStorage.saveFile(dishFilename);
 
     const [dishes_id] = await knex("dishes").insert({
       title,
       description,
       category,
       price,
-      image: filename,
+      image: image ? filename : null,
     });
 
-    const ingredientsInsert = ingredients.map((ingredient) => {
+    const ingredientsInsert = ingredients.map((ingredients) => {
       return {
         dishes_id,
-        name: ingredient,
+        name: ingredients,
       };
     });
 
@@ -36,6 +50,7 @@ class DishesController {
     const { id } = request.params;
     const { title, description, category, price } = request.body;
     const imageFile = request.file;
+
     const dish = await knex("dishes").where("id", id).first();
 
     dish.title = title ?? dish.title;
@@ -45,7 +60,7 @@ class DishesController {
 
     if (imageFile) {
       const imageFilename = imageFile.filename;
-      const diskStorage = new DiskStorage();
+
       const newFilename = await diskStorage.saveFile(imageFilename);
 
       dish.image = newFilename;
@@ -61,6 +76,22 @@ class DishesController {
 
     return response.json(dish);
   }
+
+  // if (imageFile) {
+  //   const imageFilename = imageFile.filename;
+  //   const diskStorage = new DiskStorage();
+  //   const newFilename = await diskStorage.saveFile(imageFilename);
+
+  //   dish.image = newFilename;
+  // }
+
+  // await knex("dishes").where("id", id).update({
+  //   title: dish.title,
+  //   description: dish.description,
+  //   category: dish.category,
+  //   price: dish.price,
+  //   image: dish.image,
+  // });
 
   async show(request, response) {
     const { id } = request.params;
