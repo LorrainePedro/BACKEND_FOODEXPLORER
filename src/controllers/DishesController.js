@@ -50,6 +50,7 @@ class DishesController {
     const { id } = request.params;
     const { title, description, category, price } = request.body;
     const imageFile = request.file;
+    const diskStorage = new DiskStorage();
 
     const dish = await knex("dishes").where("id", id).first();
 

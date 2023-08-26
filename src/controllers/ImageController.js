@@ -4,7 +4,7 @@ const DiskStorage = require("../providers/DiskStorage");
 class ImageController {
   async update(request, response) {
     const { id } = request.params;
-    const dishFilename = request.file.filename;
+    const imageFilename = request.file.filename;
     const diskStorage = new DiskStorage();
     const dish = await knex("dishes").where({ id }).first();
 
@@ -12,7 +12,7 @@ class ImageController {
       await diskStorage.deleteFile(dish.image);
     }
 
-    const filename = await diskStorage.saveFile(dishFilename);
+    const filename = await diskStorage.saveFile(imageFilename);
     dish.image = filename;
 
     await knex("dishes").update(dish).where({ id });
