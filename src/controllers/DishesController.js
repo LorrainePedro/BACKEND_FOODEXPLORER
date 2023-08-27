@@ -22,9 +22,6 @@ class DishesController {
       filename = await diskStorage.saveFile(image);
       console.log(image);
     }
-    //const dishFilename = request.file.filename;
-
-    //const filename = await diskStorage.saveFile(dishFilename);
 
     const [dishes_id] = await knex("dishes").insert({
       title,
@@ -77,22 +74,6 @@ class DishesController {
 
     return response.json(dish);
   }
-
-  // if (imageFile) {
-  //   const imageFilename = imageFile.filename;
-  //   const diskStorage = new DiskStorage();
-  //   const newFilename = await diskStorage.saveFile(imageFilename);
-
-  //   dish.image = newFilename;
-  // }
-
-  // await knex("dishes").where("id", id).update({
-  //   title: dish.title,
-  //   description: dish.description,
-  //   category: dish.category,
-  //   price: dish.price,
-  //   image: dish.image,
-  // });
 
   async show(request, response) {
     const { id } = request.params;
