@@ -45,7 +45,7 @@ class DishesController {
 
   async update(request, response) {
     const { id } = request.params;
-    const { title, description, category, price } = request.body;
+    const { title, description, category, price, ingredients } = request.body;
     const imageFile = request.file;
     const diskStorage = new DiskStorage();
 
@@ -71,6 +71,19 @@ class DishesController {
       price: dish.price,
       image: dish.image,
     });
+
+    if (ingredients) {
+      await knex("ingredients").where("dishes_id", id).del();
+
+      const ingredientsInsert = ingredients.map((ingredient) => {
+        return {
+          dishes_id: id,
+          name: ingredient,
+        };
+      });
+
+      await knex("ingredients").insert(ingredientsInsert);
+    }
 
     return response.json(dish);
   }
