@@ -63,5 +63,3 @@ Para ter acesso ao login de administrador e ter poderes e adicionar, deletar e a
 
 # API_FOODEXPLORER
 
-![fotofinal](![1](https://github.com/LorrainePedro/BACKEND_FOODEXPLORER/assets/139295395/57b8f682-c590-4cb5-81ba-303ad23aa787)
-)
