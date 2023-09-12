@@ -2,6 +2,16 @@
 
 Projeto de um cardápio digital direcionado para ser usado por restaurantes com o intuito de ser utilizado como projeto final do curso de full-stack da RocketSeat sendo composto por `Front-End e Back-End`.
 
+# Food Explorer
+
+Projeto de um cardápio digital direcionado para ser usado por restaurantes com o intuito de ser utilizado como projeto final do curso de full-stack da RocketSeat sendo composto por `Front-End e Back-End`.
+
+O food explorer tem duas personas: o admin e o usuário;
+
+O admin é a pessoa responsável pelo restaurante, logo, pode criar, visualizar, editar e apagar um prato a qualquer momento. Cada contém uma imagem, um nome, uma categoria, uma breve descrição, os ingredientes e o seu preço. Ao clicar em adicionar prato, o admin receberá uma mensagem de sucesso e será redirecionado para a página principal;
+
+O usuário pode visualizar todos os pratos cadastrados e quando clicar em um prato, será redirecionado para uma nova tela com informações mais detalhadas sobre ele.
+
 ## 🚀 Começando
 
 Clone o Front-End do meu repositório:
